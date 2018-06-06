@@ -23,7 +23,7 @@ MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("mongo_twitter");
 
-    dbo.createCollection("listTweets", function(err, res) {
+    /*dbo.createCollection("listTweets", function(err, res) {
         if (err) throw err;
         console.log("Collection created!");
         //db.close();
@@ -46,8 +46,25 @@ MongoClient.connect(url, function(err, db) {
             console.log(err);
         }
         db.close();
-    })
+    });*/
 
 
+   /* dbo.collection("listTweets").findOne( function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+    });*/
+
+   /* dbo.collection("listTweets").find().toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+    });*/
+
+    dbo.collection("listTweets").find({"user.screen_name": "axeldbv"}).count(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        db.close();
+    });
 
 });
