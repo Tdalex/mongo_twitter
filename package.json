@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mongodb": "^3.0.10",
     "twitter": "^1.7.1"
   }
 }
