@@ -61,16 +61,21 @@ MongoClient.connect(url, function(err, db) {
         db.close();
     });*/
 
-    dbo.collection("listTweets").aggregate([
+    function groupBy(field) {
+        dbo.collection("listTweets").aggregate([
             {
                 "$match": {}
             }, {
-                "$group": {"_id": '$user.id' },
-                // "total" : {"$sum": '$user.id'}
+                "$group": {
+                    "_id"  : field,
+                    "count": {"$sum": 1}
+                },
             }
-    ]).toArray(function(err, docs) {
-        console.log(docs);
-        db.close();
-    });
-
+        ]).toArray(function(err, docs) {
+            if (err) console.log(err);
+            console.log(docs);
+            db.close();
+        });
+    }
+    groupBy('$truncated');
 });
