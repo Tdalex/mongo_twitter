@@ -36,43 +36,32 @@ MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("mongo_twitter");
 
-    /*dbo.createCollection("listTweets", function(err, res) {
-        if (err) throw err;
-        console.log("Collection created!");
-        //db.close();
-    });
+    function getTweet() {
+        dbo.createCollection("listTweets", function(err, res) {
+            if (err) throw err;
+            console.log("Collection created!");
+            //db.close();
+        });
 
-    T.get('search/tweets', params, function(err, data, response) {
-        if(!err){
-            // Loop through the returned tweets
-            for(var i = 0; i < data.statuses.length; i++){
-                // Get the tweet Id from the returned data
-                //console.log(data.statuses[i]);
+        T.get('search/tweets', params, function(err, data, response) {
+            if(!err){
+                // Loop through the returned tweets
+                for(var i = 0; i < data.statuses.length; i++){
+                    // Get the tweet Id from the returned data
+                    //console.log(data.statuses[i]);
 
-                dbo.collection("listTweets").insertOne(data.statuses[i], function(err, res) {
-                    if (err) throw err;
-                    console.log("1 document inserted");
+                    dbo.collection("listTweets").insertOne(data.statuses[i], function(err, res) {
+                        if (err) throw err;
+                        console.log("1 document inserted");
 
-                });
-             }
-        } else {
-            console.log(err);
-        }
-        db.close();
-    });*/
-
-
-   /* dbo.collection("listTweets").findOne( function(err, result) {
-        if (err) throw err;
-        console.log(result);
-        db.close();
-    });*/
-
-   /* dbo.collection("listTweets").find().toArray(function(err, result) {
-        if (err) throw err;
-        console.log(result);
-        db.close();
-    });*/
+                    });
+                }
+            } else {
+                console.log(err);
+            }
+            db.close();
+        });
+    }
 
     function groupBy(field) {
         dbo.collection("listTweets").aggregate([
@@ -90,5 +79,8 @@ MongoClient.connect(url, function(err, db) {
             db.close();
         });
     }
-    groupBy('$truncated');
+
+    // getTweet();
+
+    groupBy('$user.location');
 });
