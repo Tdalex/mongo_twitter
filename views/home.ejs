@@ -6,24 +6,53 @@
 <h1>Tweets</h1>
 
 
-<%= locations %>
-
-<ul>
-        <li><%= locations %></li>
-</ul>
-
-<div id="myfirstchart" style="height: 250px;"></div>
+<h3>le nombre de retweets</h3>
 <div id="bar-example" style="height: 250px;"></div>
-<div id="area-example"></div>
-<div id="donut-example"></div>
+<br><br>
+<h3>Most localisation tweets</h3>
+<div id="donut-example" style="height: 250px;"></div>
+
 
 <script>
+
+    var data = <%- JSON.stringify(rtCount) %>;
+
+    var morrisData = [];
+
+    $.each(data, function(key, val){
+        morrisData.push({ y: val._id, a : val.count});
+    });
+
+    new Morris.Bar({
+         element: 'bar-example',
+         data: morrisData,
+         xkey: 'y',
+         ykeys: ['a'],
+         labels: ['nb retweets']
+    });
+
+    var data = <%- JSON.stringify(locations) %>;
+    var donutData = [];
+
+    $.each(data, function(key, val){
+        if (val.count > 4){
+            donutData.push({ label: val._id, value : val.count});
+        }
+     });
+
+    new Morris.Donut({
+          element: 'donut-example',
+          data: donutData
+    });
+
+
 
   new Morris.Line({
      // ID of the element in which to draw the chart.
      element: 'myfirstchart',
      // Chart data records -- each entry in this array corresponds to a point on
      // the chart.
+
      data: [
        { year: '2008', value: 20 },
        { year: '2009', value: 10 },
@@ -81,15 +110,4 @@
           ]
         });
 
-</script>
-
-<script type="text/javascript">
-    $(document).ready(function(){
-        /* SOCKET */
-        var socket = io.connect('http://localhost:8080');
-
-        socket.on('search', function(data) {
-            console.log(data);
-        });
-     });
 </script>

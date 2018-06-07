@@ -59,7 +59,7 @@ MongoClient.connect(url, function(err, db) {
         });
     }
 
-    function groupBy(field) {
+    function groupBy(field, callback) {
         dbo.collection("listTweets").aggregate([
             {
                 "$match": {}
@@ -71,12 +71,12 @@ MongoClient.connect(url, function(err, db) {
             }
         ]).toArray(function(err, docs) {
             if (err) console.log(err);
-            return docs;
+            callback(docs);
             //db.close();
         });
     }
 
-    function groupByRange(field, range) {
+    function groupByRange(field, range, callback) {
         dbo.collection("listTweets").aggregate([
             {
                 "$match": {
@@ -114,47 +114,33 @@ MongoClient.connect(url, function(err, db) {
                     result.push({'_id': max - range + " - " + max, 'count': res[i]});
                 }
             }
-            console.log(result);
-            db.close();
+            //console.log(result);
+            //db.close();
+            callback(result);
         });
     }
 
     // getTweet();
 
+   /* app.get('/', function(req, res) {
+        groupBy('$user.location', function(locations){
+            console.log(locations);
+            res.render('home', { locations: JSON.stringify(locations) });
+        });
+    });*/
+
+    //groupByRange('$retweet_count', 100);
     app.get('/', function(req, res) {
-        var locations = groupBy('$user.location');
-        console.log(groupBy('$user.location'));
-
-
-        res.render('home', { locations: locations });
-    });
+         groupByRange('$retweet_count', 100, function(rtCount){
+            console.log(rtCount);
+             groupBy('$user.location', function(locations){
+                 console.log(locations);
+                 res.render('home', { rtCount: rtCount, locations: locations });
+             });
+         });
+     });
 
     app.listen(8080);
 
-    //groupByRange('$retweet_count', 100);
 
 });
-/*
-
-io.sockets.on("connection", function(socket) {
-
-    //Recherche
-    socket.on("search", function(data){
-        dbo.collection("listTweets").aggregate([
-            {
-                "$match": {}
-            }, {
-                "$group": {
-                    "_id"  : field,
-                    "count": {"$sum": 1}
-                },
-            }
-        ]).toArray(function(err, docs) {
-            if (err) console.log(err);
-            socket.emit('search', docs);
-            //db.close();
-        });
-    });
-});
-
-server.listen(8080);*/
