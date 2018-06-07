@@ -3,19 +3,19 @@
  */
 
 var Twitter = require('twitter');
-var mongo = require('mongodb');
-var config = require('./config.js');
+var mongo   = require('mongodb');
+var config  = require('./config.js');
 
 var T = new Twitter(config);
 
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
+var url         = "mongodb://localhost:27017/";
 
 var params = {
-    q: '#worldcup',
-    count: 100,
+    q          : '#worldcup',
+    count      : 100,
     result_type: 'recent',
-    lang: 'fr'
+    lang       : 'fr'
 }
 
 
@@ -61,9 +61,15 @@ MongoClient.connect(url, function(err, db) {
         db.close();
     });*/
 
-    dbo.collection("listTweets").find({"user.screen_name": "axeldbv"}).count(function(err, result) {
-        if (err) throw err;
-        console.log(result);
+    dbo.collection("listTweets").aggregate([
+            {
+                "$match": {}
+            }, {
+                "$group": {"_id": '$user.id' },
+                // "total" : {"$sum": '$user.id'}
+            }
+    ]).toArray(function(err, docs) {
+        console.log(docs);
         db.close();
     });
 
