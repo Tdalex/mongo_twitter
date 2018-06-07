@@ -5,9 +5,17 @@
 
 <h1>Tweets</h1>
 
+
+<%= locations %>
+
+<ul>
+        <li><%= locations %></li>
+</ul>
+
 <div id="myfirstchart" style="height: 250px;"></div>
 <div id="bar-example" style="height: 250px;"></div>
 <div id="area-example"></div>
+<div id="donut-example"></div>
 
 <script>
 
@@ -64,4 +72,24 @@
          labels: ['Series A', 'Series B']
        });
 
+    new Morris.Donut({
+          element: 'donut-example',
+          data: [
+            {label: "Download Sales", value: 12},
+            {label: "In-Store Sales", value: 30},
+            {label: "Mail-Order Sales", value: 20}
+          ]
+        });
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        /* SOCKET */
+        var socket = io.connect('http://localhost:8080');
+
+        socket.on('search', function(data) {
+            console.log(data);
+        });
+     });
 </script>

@@ -7,6 +7,15 @@ var mongo = require('mongodb');
 var config = require('./config.js');
 var server = require('./server.js');
 
+var express = require('express');
+var io = require('socket.io');
+
+var app = express();
+app.engine('ejs', require('ejs').renderFile);
+app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/views'));
+
+
 
 var T = new Twitter(config);
 
@@ -62,7 +71,7 @@ MongoClient.connect(url, function(err, db) {
             }
         ]).toArray(function(err, docs) {
             if (err) console.log(err);
-            console.log(docs);
+            return docs;
             //db.close();
         });
     }
@@ -112,6 +121,40 @@ MongoClient.connect(url, function(err, db) {
 
     // getTweet();
 
-    // groupBy('$user.location');
-    groupByRange('$retweet_count', 100);
+    app.get('/', function(req, res) {
+        var locations = groupBy('$user.location');
+        console.log(groupBy('$user.location'));
+
+
+        res.render('home', { locations: locations });
+    });
+
+    app.listen(8080);
+
+    //groupByRange('$retweet_count', 100);
+
 });
+/*
+
+io.sockets.on("connection", function(socket) {
+
+    //Recherche
+    socket.on("search", function(data){
+        dbo.collection("listTweets").aggregate([
+            {
+                "$match": {}
+            }, {
+                "$group": {
+                    "_id"  : field,
+                    "count": {"$sum": 1}
+                },
+            }
+        ]).toArray(function(err, docs) {
+            if (err) console.log(err);
+            socket.emit('search', docs);
+            //db.close();
+        });
+    });
+});
+
+server.listen(8080);*/
