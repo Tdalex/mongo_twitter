@@ -3,8 +3,8 @@
  */
 
 var Twitter = require('twitter');
-var mongo = require('mongodb');
-var config = require('./config.js');
+var mongo   = require('mongodb');
+var config  = require('./config.js');
 var express = require('express');
 
 
@@ -17,7 +17,7 @@ app.get('/', function(req, res) {
     res.render('home');
 });
 
-app.listen(8080);
+// app.listen(8080);
 
 var T = new Twitter(config);
 
@@ -26,8 +26,8 @@ var url         = "mongodb://localhost:27017/";
 
 var params = {
     q          : '#worldcup',
-    count      : 100,
     result_type: 'mixed',
+    count      : 100,
     lang       : 'fr'
 }
 
@@ -40,7 +40,7 @@ MongoClient.connect(url, function(err, db) {
         dbo.createCollection("listTweets", function(err, res) {
             if (err) throw err;
             console.log("Collection created!");
-            //db.close();
+            // db.close();
         });
 
         T.get('search/tweets', params, function(err, data, response) {
@@ -48,12 +48,10 @@ MongoClient.connect(url, function(err, db) {
                 // Loop through the returned tweets
                 for(var i = 0; i < data.statuses.length; i++){
                     // Get the tweet Id from the returned data
-                    //console.log(data.statuses[i]);
 
                     dbo.collection("listTweets").insertOne(data.statuses[i], function(err, res) {
                         if (err) throw err;
                         console.log("1 document inserted");
-
                     });
                 }
             } else {
@@ -80,7 +78,51 @@ MongoClient.connect(url, function(err, db) {
         });
     }
 
-    getTweet();
+    function groupByRange(field, range) {
+        dbo.collection("listTweets").aggregate([
+            {
+                "$match": {
+                }
+            }, {
+                "$group": {
+                    "_id"  : field,
+                    "count": {"$sum": 1},
+                },
+            }
+        ]).toArray(function(err, docs) {
+            if (err) console.log(err);
 
-    groupBy('$user.location');
+            var start  = 0,
+                res    = [],
+                result = [];
+                max    = 0;
+
+            docs.forEach(function(doc){
+                var i = 1;
+                while ( range * i <= doc._id){
+                    i++;
+                }
+
+                if (res[i] === undefined) {
+                    res[i] = 0;
+                }
+
+                res[i] = res[i] + doc.count;
+            })
+
+            for (var i = 0, len = res.length; i < len; i++) {
+                if (res[i] !== undefined) {
+                    max = range * i;
+                    result.push({'_id': max - range + " - " + max, 'count': res[i]});
+                }
+            }
+            console.log(result);
+            db.close();
+        });
+    }
+
+    // getTweet();
+
+    // groupBy('$user.location');
+    groupByRange('$retweet_count', 100);
 });
