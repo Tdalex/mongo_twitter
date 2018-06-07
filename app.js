@@ -135,12 +135,13 @@ MongoClient.connect(url, function(err, db) {
             console.log(rtCount);
              groupBy('$user.location', function(locations){
                  console.log(locations);
-                 res.render('home', { rtCount: rtCount, locations: locations });
-             });
+                 groupByRange('$user.favourites_count', 10000, function(fvCount){
+                    res.render('home', { rtCount: rtCount, locations: locations, fvCount: fvCount });
+                });
+            });
          });
-     });
+    });
 
     app.listen(8080);
-
 
 });
