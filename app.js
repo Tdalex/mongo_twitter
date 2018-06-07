@@ -27,7 +27,7 @@ var url         = "mongodb://localhost:27017/";
 var params = {
     q          : '#worldcup',
     count      : 100,
-    result_type: 'recent',
+    result_type: 'mixed',
     lang       : 'fr'
 }
 
@@ -59,7 +59,7 @@ MongoClient.connect(url, function(err, db) {
             } else {
                 console.log(err);
             }
-            db.close();
+            //db.close();
         });
     }
 
@@ -76,11 +76,11 @@ MongoClient.connect(url, function(err, db) {
         ]).toArray(function(err, docs) {
             if (err) console.log(err);
             console.log(docs);
-            db.close();
+            //db.close();
         });
     }
 
-    // getTweet();
+    getTweet();
 
     groupBy('$user.location');
 });
